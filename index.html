@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>台灣生態調查員</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;-webkit-text-size-adjust:100%}
+body{font-family:'Noto Sans TC',sans-serif;background:#f5f0e8;color:#2c1a0e}
+#app{width:100%;min-height:100vh}
+
+.page{display:none;flex-direction:column;align-items:center;padding:26px 24px;min-height:600px}
+.page.on{display:flex}
+.btn{background:#3a6b35;color:#fff;border:none;padding:12px 28px;border-radius:50px;font-size:15px;font-family:inherit;font-weight:700;cursor:pointer;transition:background .15s;margin-top:10px;min-height:46px;touch-action:manipulation}
+.btn:hover{background:#2a4f27}
+.btn.out{background:transparent;border:2px solid #3a6b35;color:#3a6b35}
+.btn.out:hover{background:#eaf4e8}
+.cbtn{background:#3a6b35;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:700;font-family:inherit;min-height:40px;touch-action:manipulation}
+.cbtn:hover{background:#2a4f27}
+.cbtn:disabled{background:#aaa;cursor:not-allowed}
+
+#cover{background:linear-gradient(155deg,#1a3d1a,#2d6030 55%,#5a9450);justify-content:center;text-align:center;position:relative;overflow:hidden}
+#cover h1{font-size:33px;font-weight:900;color:#fff;margin-bottom:6px;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.brow{font-size:46px;margin-bottom:12px;display:flex;gap:14px;justify-content:center}
+.brow span{animation:bob 3s ease-in-out infinite}
+.brow span:nth-child(2){animation-delay:.5s}
+.brow span:nth-child(3){animation-delay:1s}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}
+.tag{background:rgba(255,255,255,.18);color:#fff;padding:4px 12px;border-radius:50px;font-size:12px}
+.wave{position:absolute;bottom:0;left:0;right:0;height:52px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 52'%3E%3Cpath fill='%23f5f0e8' d='M0,26 C360,52 720,0 1080,26 C1260,39 1380,26 1440,18 L1440,52 L0,52Z'/%3E%3C/svg%3E") no-repeat bottom;background-size:cover}
+#cover .btn{background:#fff;color:#2d6030;padding:12px 34px;font-size:15px}
+
+.mcards{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.mcard{background:#fff;border:2px solid #d4e8c8;border-radius:16px;padding:16px 12px;width:148px;cursor:pointer;transition:border-color .15s;text-align:center;position:relative;touch-action:manipulation;min-height:100px}
+.mcard:hover{border-color:#3a6b35}
+.mcard.done{border-color:#3a6b35;background:#f1f8ee}
+.mcard.done::after{content:'✓';position:absolute;top:7px;right:10px;color:#3a6b35;font-weight:700}
+.mcard .ico{font-size:30px;margin-bottom:6px}
+.mcard h3{font-size:13px;font-weight:700;color:#1a3d1a;margin-bottom:2px}
+.mcard .sp{font-size:10px;color:#888;font-style:italic}
+.rbtn{background:#fff;border:2px solid #b5600a;border-radius:16px;padding:16px 12px;width:148px;cursor:pointer;text-align:center;touch-action:manipulation;min-height:100px}
+.rbtn:hover{border-color:#8a4507}
+.rbtn .ico{font-size:30px;margin-bottom:6px}
+.rbtn h3{font-size:13px;font-weight:700;color:#8a4507}
+
+.ghdr{display:flex;align-items:center;gap:10px;width:100%;max-width:720px;margin-bottom:12px}
+.back{background:none;border:1.5px solid #aaa;color:#555;padding:9px 16px;border-radius:50px;font-size:13px;cursor:pointer;font-weight:500;font-family:inherit;min-height:40px;touch-action:manipulation}
+.back:hover{border-color:#3a6b35;color:#3a6b35}
+.gbody{width:100%;max-width:720px;display:flex;flex-direction:column;gap:10px}
+.sbox{background:#fff;border-radius:12px;border:1.5px solid #d4e8c8;padding:14px 18px}
+.sbox.active{border-color:#3a6b35}
+.sbox.done{border-color:#81c784;background:#f4faf0}
+.sbox.locked{opacity:.35;pointer-events:none}
+.stitle{font-weight:700;font-size:14px;color:#1a3d1a;display:flex;align-items:center;margin-bottom:9px}
+.snum{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;background:#3a6b35;color:#fff;font-weight:700;font-size:11px;margin-right:7px;flex-shrink:0}
+.fmla{background:#eaf4e8;border-radius:9px;padding:10px 14px;font-size:12px;color:#1a3d1a;line-height:1.8;border-left:3px solid #3a6b35;margin-bottom:2px}
+.info{font-size:12px;color:#555;line-height:1.7}
+.inrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:7px}
+.inrow label{font-size:13px;color:#555}
+.sinp{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-size:16px;font-family:inherit;text-align:center;width:80px;min-height:40px}
+.sinp:focus{outline:none;border-color:#3a6b35}
+select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-size:16px;font-family:inherit;background:#fff;cursor:pointer;min-height:40px}
+
+/* region grid */
+.rgrid{display:grid;gap:4px;margin:8px 0}
+.rcell{border-radius:8px;padding:6px 7px;min-height:54px}
+.rcell.sampled{background:#1b5e20;border:1.5px solid #0a3d0a}
+.rcell.unsampled{background:#e8f5e9;border:1.5px solid #c8e6c9}
+.rcell .rn{font-size:9px;font-weight:700;display:block;margin-bottom:2px}
+.rcell.sampled .rn{color:rgba(255,255,255,.6)}
+.rcell.unsampled .rn{color:#81c784}
+.rcell .rtrees{font-size:11px;line-height:1.4;word-break:break-all}
+.rcell.unsampled .rtrees{color:#bbb}
+
+/* 樣區法步驟2：綠框白底 */
+.rc-inp{width:90px;padding:7px 8px;border:1.5px solid #3a6b35;border-radius:6px;background:#fff;font-size:16px;font-family:inherit;text-align:center;min-height:40px;transition:all .15s;-webkit-appearance:none}
+.rc-inp:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
+.rc-inp::-webkit-inner-spin-button{opacity:0}
+
+/* formula sections */
+.fsec{background:#eaf4e8;border-radius:9px;padding:11px 14px;margin:6px 0}
+.flbl{font-size:11px;color:#2a6b30;font-weight:700;margin-bottom:8px}
+.fhint{font-size:10px;color:#888;margin-top:5px;line-height:1.5}
+.fline{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;font-size:13px;color:#1a3d1a;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.fline .op{font-weight:700;color:#3a6b35;font-size:14px;flex-shrink:0}
+.fline .unit{font-size:12px;color:#555;flex-shrink:0}
+
+/* 公式挖空格：綠框白底 */
+.bl{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;flex-shrink:0;min-height:36px;-webkit-appearance:none;transition:all .15s}
+.bl:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
+.bl::-webkit-inner-spin-button,.bl::-webkit-outer-spin-button{opacity:0}
+.bl.xs{width:93px}
+.bl.s {width:111px}
+.bl.m {width:132px}
+
+/* 缺填時粉紅 */
+.need-fill{background:#ffe0e0 !important;border-color:#e57373 !important}
+.need-fill-box{background:#ffe0e0 !important;border-color:#e57373 !important}
+
+/* 捉放法比例式 */
+.prop-line{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;font-size:13px;color:#1a3d1a;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+.prop-line .op{font-weight:700;color:#3a6b35;font-size:14px;flex-shrink:0}
+.frac{display:inline-flex;flex-direction:column;align-items:center;flex-shrink:0;margin:0 2px}
+.frac .finp{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:87px;min-height:34px;-webkit-appearance:none;transition:all .15s}
+.frac .finp:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
+.frac .finp::-webkit-inner-spin-button{opacity:0}
+.frac .n-display{border:1.5px solid #e67e22;background:#fff3e0;border-radius:6px;text-align:center;font-size:11px;font-weight:400;font-family:inherit;color:#8a4507;padding:5px 4px;width:87px;min-height:34px;-webkit-appearance:none;cursor:default;pointer-events:none}
+.frac .n-display::placeholder{color:#c68642}
+.frac .fbar{width:100%;height:2px;background:#1a3d1a;margin:3px 0}
+.rinline{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:108px;min-height:36px;flex-shrink:0;-webkit-appearance:none;transition:all .15s}
+.rinline:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
+.rinline::-webkit-inner-spin-button{opacity:0}
+
+/* fgrid */
+.fgrid{display:flex;flex-wrap:wrap;gap:4px;max-width:480px;justify-content:center;padding:10px 0}
+.ftok{font-size:22px;cursor:pointer;border-radius:6px;padding:3px;user-select:none;touch-action:manipulation;min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center;transition:opacity .2s}
+.ftok.clicked{opacity:.15;cursor:default}
+.done-area{text-align:center;padding:4px 0}
+.okmsg{display:none;margin-top:8px;font-size:12px;color:#3a6b35;font-weight:700}
+
+/* summary */
+#summary{background:#1a3d1a;}
+.ss{background:rgba(255,255,255,.1);border-radius:12px;padding:14px;width:100%;max-width:720px;margin-bottom:10px}
+.ss h3{font-size:14px;color:#fff;font-weight:700;margin-bottom:8px}
+.sr{display:flex;justify-content:space-between;font-size:12px;color:rgba(255,255,255,.85);padding:5px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.sr:last-child{border-bottom:none}
+.sr .k{color:rgba(255,255,255,.5)}
+.sbig{font-size:15px;font-weight:800;color:#a5d6a7}
+.strue{font-size:15px;font-weight:800;color:#ffcc02}
+.scene-card{background:#fff;border-radius:16px;border:1.5px solid #d4e8c8;padding:20px 24px;text-align:center;max-width:560px;width:100%}
+.thr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:560px;width:100%;margin-top:11px}
+.tc{background:#fff;border-radius:11px;border:1.5px solid #d4e8c8;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:flex-start}
+
+/* =========================================
+   電腦與平板版面放大設定 (寬度大於 768px)
+========================================= */
+@media (min-width: 768px) {
+  #cover h1 { font-size: 46px; margin-bottom: 16px; }
+  .brow { font-size: 64px; margin-bottom: 24px; }
+  #cover p, .scene-card p { font-size: 16px !important; }
+  .scene-card h2, .page h2 { font-size: 24px !important; }
+  .tag { font-size: 15px; padding: 6px 16px; }
+  .thr .tc { padding: 16px; }
+  .thr .tc div:nth-child(2) { font-size: 16px !important; }
+  .thr .tc div:nth-child(3) { font-size: 13px !important; line-height: 1.6; }
+
+  .btn { font-size: 18px; padding: 14px 36px; min-height: 52px; }
+  .cbtn { font-size: 15px; padding: 12px 24px; min-height: 48px; }
+  .back { font-size: 15px; padding: 10px 20px; }
+
+  .mcards { gap: 16px; }
+  .mcard, .rbtn { width: 180px; padding: 20px 16px; min-height: 120px; }
+  .mcard .ico, .rbtn .ico { font-size: 42px; }
+  .mcard h3, .rbtn h3 { font-size: 17px; margin-bottom: 6px; }
+  .mcard .sp { font-size: 13px; }
+
+  .info, .fmla { font-size: 15px; line-height: 1.8; }
+  .stitle { font-size: 18px; margin-bottom: 14px; }
+  .snum { width: 26px; height: 26px; font-size: 14px; margin-right: 10px; }
+  .inrow label { font-size: 16px; }
+  .sinp, select.ssel, .rc-inp { font-size: 18px; min-height: 48px; width: 100px; }
+
+  .fsec { padding: 16px 20px; }
+  .flbl { font-size: 14px; margin-bottom: 12px; }
+  .fhint { font-size: 13px; }
+  .fline { font-size: 16px; }
+  .fline .op, .prop-line .op { font-size: 18px; }
+  .fline .unit { font-size: 15px; }
+  .bl, .frac .finp, .rinline { font-size: 18px; min-height: 44px; }
+  .frac .n-display { font-size: 14px; min-height: 44px; padding-top: 10px; }
+  .bl.xs { width: 110px; }
+  .bl.s { width: 130px; }
+  .bl.m { width: 160px; }
+
+  .rcell .rn { font-size: 13px; margin-bottom: 6px; }
+  .rcell .rtrees { font-size: 18px; }
+  .ftok { font-size: 36px; min-width: 48px; min-height: 48px; }
+
+  .ss h3 { font-size: 18px; }
+  .sr { font-size: 15px; padding: 10px 0; }
+  .sbig, .strue { font-size: 18px; }
+
+  /* 調整大螢幕的區塊間距與留白 */
+  .gbody { gap: 20px; }
+  .sbox { padding: 24px 28px; }
+  .ghdr { margin-bottom: 24px; }
+  .info { margin-bottom: 16px !important; }
+}
+</style>
+</head><body>
+<div id="app">
+
+<div class="page on" id="cover">
+  <div class="brow"><span>🌲</span><span>🐆</span><span>🐟</span></div>
+  <h1>台灣生態調查員</h1>
+  <p style="color:rgba(255,255,255,.82);font-size:14px;margin-bottom:20px">用三種科學方法，估算台灣特有種的數量！</p>
+  <div class="tags">
+    <span class="tag">🌲 台灣紅檜 × 樣區法</span>
+    <span class="tag">🐆 石虎 × 捉放法</span>
+    <span class="tag">🐟 櫻花鉤吻鮭 × 直接計數法</span>
+  </div>
+  <button class="btn" onclick="goTo('scenario')">出發調查 →</button>
+  <div class="wave"></div>
+</div>
+
+<div class="page" id="scenario">
+  <div class="scene-card">
+    <div style="font-size:42px;margin-bottom:8px">🏔️</div>
+    <h2 style="font-size:18px;font-weight:700;color:#1a3d1a;margin-bottom:9px">你是生態調查員！</h2>
+    <p style="font-size:13px;color:#444;line-height:1.8">林務局委託你調查台灣山林中三種珍貴物種。請前往<strong>阿里山</strong>調查紅檜、<strong>苗栗淺山</strong>調查石虎，以及<strong>雪霸七家灣溪</strong>調查櫻花鉤吻鮭。</p>
+  </div>
+  
+  <div style="background:#fff3e0;border-left:4px solid #e67e22;padding:10px 14px;border-radius:6px;margin-top:16px;font-size:13px;color:#8a4507;max-width:560px;width:100%;line-height:1.6">
+    💡 <strong>調查員請注意：</strong>為了計算方便，本調查任務中若公式計算結果出現小數點，請皆 <strong>四捨五入至整數位</strong> 填寫即可！
+  </div>
+
+  <div class="thr">
+    <div class="tc"><div style="font-size:24px">🌲</div><div style="font-size:12px;font-weight:700;color:#1a3d1a;margin-top:4px">台灣紅檜</div><div style="font-size:10px;color:#888;margin-top:4px">生長於高海拔，樹形巨大且不會移動。因為整片山林範圍太廣無法逐一數完，適合用抽樣推算。</div></div>
+    <div class="tc"><div style="font-size:24px">🐆</div><div style="font-size:12px;font-weight:700;color:#1a3d1a;margin-top:4px">石虎</div><div style="font-size:10px;color:#888;margin-top:4px">生性機警、常在夜間活動且活動範圍廣。因為很難直接看到野生個體，適合捕捉標記後放回推算。</div></div>
+    <div class="tc"><div style="font-size:24px">🐟</div><div style="font-size:12px;font-weight:700;color:#1a3d1a;margin-top:4px">櫻花鉤吻鮭</div><div style="font-size:10px;color:#888;margin-top:4px">台灣國寶魚。棲息地僅限特定清澈溪流，範圍固定且水質清澈，研究員能潛入水中一尾一尾點數。</div></div>
+  </div>
+  <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap;justify-content:center">
+    <button class="btn out" onclick="goTo('cover')">← 返回</button>
+    <button class="btn" onclick="goTo('method-select')">開始選擇調查方法 →</button>
+  </div>
+</div>
+
+<div class="page" id="method-select">
+  <h2 style="font-size:19px;font-weight:700;color:#1a3d1a;margin-bottom:4px">選擇調查方法</h2>
+  <p style="color:#666;font-size:12px;margin-bottom:16px">完成全部三種方法，才能看最終比較報告！</p>
+  <div class="mcards">
+    <div class="mcard" id="mc-sampling" onclick="goTo('sampling')"><div class="ico">🌲</div><h3>樣區法</h3><div class="sp">台灣紅檜・阿里山</div></div>
+    <div class="mcard" id="mc-capture" onclick="goTo('capture')"><div class="ico">🐆</div><h3>捉放法</h3><div class="sp">石虎・苗栗淺山</div></div>
+    <div class="mcard" id="mc-direct" onclick="goTo('direct')"><div class="ico">🐟</div><h3>直接計數法</h3><div class="sp">櫻花鉤吻鮭・七家灣溪</div></div>
+    <div class="rbtn" id="mc-result" style="display:none" onclick="goTo('summary')"><div class="ico">📋</div><h3>看結果報告</h3></div>
+  </div>
+  <button class="btn out" style="margin-top:14px" onclick="goTo('scenario')">← 返回情境</button>
+</div>
+
+<div class="page" id="sampling">
+  <div class="ghdr">
+    <button class="back" onclick="goTo('method-select')">← 返回</button>
+    <h2 style="font-size:15px;font-weight:700;color:#1a3d1a">🌲 樣區法｜台灣紅檜</h2>
+  </div>
+  <div class="gbody">
+    <div class="fmla"><strong>調查地點：</strong>阿里山紅檜林區<br><strong>物種特性：</strong>植物不會移動，但高山森林面積廣大。<br><strong>原理：</strong>將林區劃分成若干樣區，隨機抽取部分樣區計數，再推估全區總數。<br><strong>公式：</strong>估計總數 ＝ 抽樣平均數 × 總樣區數</div>
+    <div class="sbox active" id="s1">
+      <div class="stitle"><span class="snum">1</span>設置調查樣區</div>
+      <div class="inrow"><label>總樣區數：</label><select class="ssel" id="samp-tr"><option value="6">6 個</option><option value="12" selected>12 個</option></select></div>
+      <div class="inrow" style="margin-top:7px"><label>抽查樣區數：</label><input type="number" class="sinp" id="samp-pn" value="3" min="1" max="12" inputmode="numeric"><span style="font-size:10px;color:#888">（建議不超過總樣區數一半）</span></div>
+      <button class="cbtn" style="margin-top:12px" onclick="startSampling()">開始調查 →</button>
+    </div>
+    <div class="sbox" id="s2">
+      <div class="stitle"><span class="snum">2</span>記錄各樣區的紅檜數量</div>
+      <p class="info" style="margin-bottom:8px">數一數<strong style="color:#1b5e20">深綠色樣區</strong>裡有幾棵 🌲，再填入下方對應的輸入格；淺綠色為未抽到的樣區。</p>
+      <div id="s-grid" class="rgrid"></div>
+      <div id="s-input-rows" style="margin-top:10px"></div>
+      <button class="cbtn" style="margin-top:12px" onclick="showS3()">填好了，繼續計算 →</button>
+    </div>
+    <div class="sbox locked" id="s3">
+      <div class="stitle"><span class="snum">3</span>計算平均數與估計總數</div>
+      <div class="fsec">
+        <div class="flbl">① 計算抽樣平均數（株 / 樣區）</div>
+        <div class="fline">
+          <span style="flex-shrink:0;font-size:12px">平均數</span><span class="op">＝</span>
+          <input class="bl m" id="f-sum" type="number" inputmode="decimal" placeholder="各區加總">
+          <span class="op">÷</span>
+          <input class="bl xs" id="f-pn" type="number" inputmode="numeric" placeholder="樣區數">
+          <span class="op">＝</span>
+          <input class="bl s" id="f-avg" type="number" inputmode="decimal" placeholder="平均株數">
+          <span class="unit">株</span>
+        </div>
+        <div class="fhint">各樣區株數加總 ÷ 抽查樣區數 ＝ 平均株數（若有小數請四捨五入至整數）</div>
+      </div>
+      <div class="fsec">
+        <div class="flbl">② 計算估計總數</div>
+        <div class="fline">
+          <span style="flex-shrink:0;font-size:12px">估計總數</span><span class="op">＝</span>
+          <input class="bl s" id="f-avg2" type="number" inputmode="decimal" placeholder="平均株數">
+          <span class="op">×</span>
+          <input class="bl xs" id="f-tr" type="number" inputmode="numeric" placeholder="總樣區數">
+          <span class="op">＝</span>
+          <input class="bl m" id="f-total" type="number" inputmode="numeric" placeholder="估計總株數">
+          <span class="unit">株</span>
+        </div>
+        <div class="fhint">平均株數 × 總樣區數 ＝ 估計總株數</div>
+      </div>
+      <button class="cbtn" style="margin-top:10px" onclick="confirmSamp()">確認估計值</button>
+      <div class="okmsg" id="s-ok"></div>
+    </div>
+    <div id="samp-fin" style="display:none" class="done-area"><button class="btn" onclick="goTo('method-select')">完成 →</button></div>
+  </div>
+</div>
+
+<div class="page" id="capture">
+  <div class="ghdr">
+    <button class="back" onclick="goTo('method-select')">← 返回</button>
+    <h2 style="font-size:15px;font-weight:700;color:#1a3d1a">🐆 捉放法｜石虎</h2>
+  </div>
+  <div class="gbody">
+    <div class="fmla"><strong>調查地點：</strong>苗栗三義淺山地帶<br><strong>物種特性：</strong>生性隱密、移動範圍大，極難直接目擊。<br><strong>原理：</strong>第一次捕捉並標記後放回，隔一段時間再捕捉，根據標記比例推估族群總數。<br><strong>比例式：</strong>第一次標記數 / 族群估算量 N ＝ 此次有標記數 / 此次捕獲總數</div>
+    <div class="sbox active" id="c1">
+      <div class="stitle"><span class="snum">1</span>第一次捕捉並標記</div>
+      <p class="info" style="margin-bottom:9px">在石虎出沒地點設置誘捕籠，捕捉後由獸醫檢查並套上無線電項圈，再放回野外。</p>
+      <div class="inrow"><label>第一次捕捉並標記的石虎數量：</label><input type="number" class="sinp" id="cap-m" value="8" min="1" max="30" inputmode="numeric"><span style="font-size:12px;color:#555">隻</span></div>
+      <button class="cbtn" style="margin-top:12px" onclick="capStep1()">標記完成，放回野外 →</button>
+    </div>
+    <div class="sbox" id="c2">
+      <div class="stitle"><span class="snum">2</span>第二次捕捉（共三次取樣）</div>
+      <p class="info" style="margin-bottom:7px">等待數週讓石虎均勻混入族群後，再次佈放陷阱，記錄每次的捕獲數與其中有項圈的數量。</p>
+      <div id="c-samps"></div>
+      <button class="cbtn" id="cap-sb" style="margin-top:10px" onclick="doCapSample()">🎲 進行第二次捕捉</button>
+    </div>
+    <div class="sbox" id="c3">
+      <div class="stitle"><span class="snum">3</span>代入比例式，算出估計數</div>
+      <p class="info" style="margin-bottom:6px">將數值填入比例式，算出每次的族群估算量 N，最後取三次平均。<br>
+        <span style="display:inline-flex;align-items:center;gap:6px;margin-top:5px;font-size:11px">
+          <span style="background:#fff3e0;border:1.5px solid #e67e22;border-radius:5px;padding:2px 8px;color:#8a4507;font-weight:700">橘色格</span>
+          為求解目標，系統已標示，<strong>不需填寫</strong>
+        </span>
+      </p>
+      <div id="c-calc" style="margin-top:10px"></div>
+      <div id="c3-avg" style="display:none">
+        <div class="fsec" style="margin-top:6px">
+          <div class="flbl">④ 計算三次平均估計值</div>
+          <div class="fline">
+            <span class="op">（</span>
+            <input class="bl xs" id="ca0" type="number" inputmode="numeric" placeholder="第1次 N">
+            <span class="op">＋</span>
+            <input class="bl xs" id="ca1" type="number" inputmode="numeric" placeholder="第2次 N">
+            <span class="op">＋</span>
+            <input class="bl xs" id="ca2" type="number" inputmode="numeric" placeholder="第3次 N">
+            <span class="op">）÷ 3 ＝</span>
+            <input class="bl s" id="ca-avg" type="number" inputmode="numeric" placeholder="平均估計數">
+            <span class="unit">隻</span>
+          </div>
+          <div class="fhint">將三次估計值填入，算出平均值（請四捨五入至整數）</div>
+        </div>
+        <button class="cbtn" style="margin-top:10px" onclick="confirmCap()">確認估計值</button>
+        <div class="okmsg" id="c-ok"></div>
+      </div>
+    </div>
+    <div id="cap-fin" style="display:none" class="done-area"><button class="btn" onclick="goTo('method-select')">完成 →</button></div>
+  </div>
+</div>
+
+<div class="page" id="direct">
+  <div class="ghdr">
+    <button class="back" onclick="goTo('method-select')">← 返回</button>
+    <h2 style="font-size:15px;font-weight:700;color:#1a3d1a">🐟 直接計數法｜櫻花鉤吻鮭</h2>
+  </div>
+  <div class="gbody">
+    <div class="fmla"><strong>調查地點：</strong>雪霸國家公園七家灣溪<br><strong>物種特性：</strong>台灣特有的冷水性魚類，棲地極度侷限且水質清澈。<br><strong>調查實務：</strong>因為水很清澈加上範圍固定，研究員每年會穿著防寒衣、戴著浮潛面鏡，泡在冰冷溪水中，一段一段把成魚和幼魚直接「一尾一尾」數出來！</div>
+    <div class="sbox active" id="d1">
+      <div class="stitle"><span class="snum">1</span>潛入水中！點擊每一尾鮭魚進行計數</div>
+      <p class="info" style="margin-bottom:7px">點擊後圖示變淡，代表你已記錄到這尾魚。</p>
+      <div class="fgrid" id="d-grid"></div>
+      <div style="margin-top:10px;font-size:14px;font-weight:700;color:#1a3d1a;text-align:center;">已記錄：<span id="d-cnt" style="color:#2a6b30;font-size:18px;">0</span> 尾</div>
+    </div>
+    <div class="sbox" id="d2">
+      <div class="stitle"><span class="snum">2</span>填入你的觀察記錄總數</div>
+      <div class="inrow"><label>調查到的總尾數：</label><input type="number" class="sinp" id="dir-ans" placeholder="?" min="0" inputmode="numeric"><span style="font-size:12px;color:#555">尾</span></div>
+      <button class="cbtn" style="margin-top:10px" onclick="confirmDir()">確認記錄值</button>
+      <div class="okmsg" id="d-ok"></div>
+    </div>
+    <div id="dir-fin" style="display:none" class="done-area"><button class="btn" onclick="goTo('method-select')">完成 →</button></div>
+  </div>
+</div>
+
+<div class="page" id="summary">
+  <div style="width:100%;max-width:720px">
+    <div class="ghdr" style="margin-bottom:14px">
+      <button class="back" style="border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8)" onclick="goTo('method-select')">← 返回</button>
+      <h2 style="color:#fff;font-size:17px">📋 調查報告</h2>
+    </div>
+    <div class="ss" id="sum-s"></div>
+    <div class="ss" id="sum-c"></div>
+    <div class="ss" id="sum-d"></div>
+    <div class="ss" style="background:rgba(255,255,255,.06)">
+      <h3 style="color:rgba(255,255,255,.6);font-size:12px;margin-bottom:6px">💬 思考看看</h3>
+      <p style="font-size:12px;color:rgba(255,255,255,.6);line-height:1.9">三種方法的估算結果與實際數量差多少？<br>是什麼原因造成這樣的差異？（例如樣區剛好抽到特別密集的區域？或捕獲機率改變？）<br>你覺得這三種方法可以互相交換使用嗎？為什麼？</p>
+    </div>
+    <div style="text-align:center;padding-bottom:2rem;margin-top:20px"><button class="btn" style="background:#fff;color:#1a3d1a" onclick="restart()">🔄 重新調查</button></div>
+  </div>
+</div>
+</div>
+
+<script>
+var RD12=[14,9,12,17,8,11,15,10,13,9,11,16];
+var RD6=[23,19,27,21,18,24];
+// 修改：將魚的總數設為 28
+var TRUE_TREE_12=145,TRUE_TREE_6=132,TRUE_CAT=45,TRUE_FISH=28;
+var S={samp:{tr:12,pn:3,picked:[],data:[],ans:null,ok:false,svCounts:[],svSum:'',svAvg:''},cap:{m:8,samps:[],ans:null,ok:false,svNs:[]},dir:{cnt:0,ans:null,ok:false}};
+
+function isEmpty(id){var e=document.getElementById(id);return !e||e.value===''||e.value===null;}
+function markEmpty(id){var e=document.getElementById(id);if(e){e.classList.add('need-fill');e.addEventListener('input',function(){e.classList.remove('need-fill');},{once:true});}}
+function clearMarks(ids){ids.forEach(function(id){var e=document.getElementById(id);if(e)e.classList.remove('need-fill');});}
+
+function goTo(id){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  window.scrollTo(0,0);
+  if(id==='method-select')syncCards();
+  if(id==='summary')buildSum();
+  if(id==='direct')ensureGrid();
+}
+function syncCards(){
+  document.getElementById('mc-sampling').classList.toggle('done',!!S.samp.ok);
+  document.getElementById('mc-capture').classList.toggle('done',!!S.cap.ok);
+  document.getElementById('mc-direct').classList.toggle('done',!!S.dir.ok);
+  document.getElementById('mc-result').style.display=(S.samp.ok&&S.cap.ok&&S.dir.ok)?'block':'none';
+}
+
+function startSampling(){
+  var tr=parseInt(document.getElementById('samp-tr').value);
+  var pn=parseInt(document.getElementById('samp-pn').value)||3;
+  pn=Math.max(1,Math.min(pn,tr));
+  document.getElementById('samp-pn').value=pn;
+  S.samp.tr=tr;S.samp.pn=pn;
+  var data=tr===6?RD6:RD12;
+  var idxs=[];
+  while(idxs.length<pn){var r=Math.floor(Math.random()*tr);if(idxs.indexOf(r)<0)idxs.push(r);}
+  idxs.sort(function(a,b){return a-b;});
+  S.samp.picked=idxs;S.samp.data=idxs.map(function(i){return data[i];});
+  var cols=tr===6?3:4;
+  var grid=document.getElementById('s-grid');
+  grid.style.gridTemplateColumns='repeat('+cols+',1fr)';grid.innerHTML='';
+  for(var i=0;i<tr;i++){
+    var cell=document.createElement('div');
+    var isSampled=idxs.indexOf(i)>=0;
+    cell.className='rcell '+(isSampled?'sampled':'unsampled');
+    var trees='';if(isSampled){for(var t=0;t<data[i];t++)trees+='🌲';}
+    cell.innerHTML='<span class="rn">樣區 '+(i+1)+'</span><div class="rtrees">'+(isSampled?trees:'—')+'</div>';
+    grid.appendChild(cell);
+  }
+  var inputRows=document.getElementById('s-input-rows');
+  inputRows.innerHTML='<div style="font-size:11px;font-weight:700;color:#2a6b30;margin-bottom:7px">填入各抽樣區的株數：</div>';
+  for(var j=0;j<idxs.length;j++){
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;color:#1a3d1a';
+    row.innerHTML='樣區 '+(idxs[j]+1)+'：<input type="number" inputmode="numeric" id="rc'+j+'" class="rc-inp" placeholder="株數"> 株';
+    inputRows.appendChild(row);
+  }
+  ['f-sum','f-pn','f-avg','f-avg2','f-tr','f-total'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('s-ok').style.display='none';document.getElementById('samp-fin').style.display='none';
+  document.getElementById('s1').className='sbox done';document.getElementById('s2').className='sbox active';document.getElementById('s3').className='sbox locked';
+}
+function showS3(){document.getElementById('s2').className='sbox done';document.getElementById('s3').className='sbox active';}
+function confirmSamp(){
+  var reqIds=['f-sum','f-pn','f-avg','f-avg2','f-tr','f-total'];
+  clearMarks(reqIds);var missing=[];
+  reqIds.forEach(function(id){if(isEmpty(id))missing.push(id);});
+  if(missing.length>0){missing.forEach(markEmpty);return;}
+  var v=parseInt(document.getElementById('f-total').value);
+  if(!v||v<=0){markEmpty('f-total');return;}
+  S.samp.ans=v;S.samp.ok=true;
+  S.samp.svSum=document.getElementById('f-sum').value||'—';S.samp.svAvg=document.getElementById('f-avg').value||'—';
+  S.samp.svCounts=[];for(var i=0;i<S.samp.pn;i++){var el=document.getElementById('rc'+i);S.samp.svCounts.push(el?el.value:'—');}
+  var ok=document.getElementById('s-ok');ok.style.display='block';ok.textContent='✅ 你的估計值：'+v+' 株（已記錄）';
+  document.getElementById('s3').classList.add('done');document.getElementById('samp-fin').style.display='block';
+}
+
+function capStep1(){
+  var m=parseInt(document.getElementById('cap-m').value)||8;
+  S.cap.m=m;S.cap.samps=[];S.cap.svNs=[];
+  document.getElementById('c-samps').innerHTML='';document.getElementById('cap-sb').disabled=false;
+  document.getElementById('c-calc').innerHTML='';document.getElementById('c3-avg').style.display='none';
+  document.getElementById('c-ok').style.display='none';document.getElementById('cap-fin').style.display='none';
+  document.getElementById('c1').className='sbox done';document.getElementById('c2').className='sbox active';document.getElementById('c3').className='sbox';
+}
+function doCapSample(){
+  if(S.cap.samps.length>=3)return;
+  var C=8+Math.floor(Math.random()*9);
+  var raw=Math.round((S.cap.m/TRUE_CAT)*C*(0.7+Math.random()*0.6));
+  var R=Math.max(1,Math.min(raw,Math.min(C,S.cap.m)));
+  S.cap.samps.push({C:C,R:R});
+  var n=S.cap.samps.length;
+  var div=document.createElement('div');
+  div.style.cssText='background:#eaf4e8;border-radius:8px;padding:9px 12px;font-size:12px;color:#1a3d1a;margin-bottom:6px';
+  div.innerHTML='<b>第'+n+'次：</b>共捕獲 <b>'+C+'</b> 隻，其中有項圈（標記）<b>'+R+'</b> 隻';
+  document.getElementById('c-samps').appendChild(div);
+  if(S.cap.samps.length>=3){
+    document.getElementById('cap-sb').disabled=true;document.getElementById('c2').className='sbox done';document.getElementById('c3').className='sbox active';buildCapCalc();
+  }
+}
+function buildCapCalc(){
+  var area=document.getElementById('c-calc');area.innerHTML='';
+  var nums=['①','②','③'];
+  for(var i=0;i<S.cap.samps.length;i++){
+    var s=S.cap.samps[i];var d=document.createElement('div');d.className='fsec';d.style.marginBottom='8px';
+    d.innerHTML='<div class="flbl">'+nums[i]+' 第'+(i+1)+'次取樣（此次捕獲 '+s.C+' 隻，有標記 '+s.R+' 隻）</div>'+
+      '<div class="prop-line">'+
+        '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'m" placeholder="第一次標記數"><div class="fbar"></div><input class="n-display" readonly tabindex="-1" placeholder="估算量 N"></div>'+
+        '<span class="op">＝</span>'+
+        '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'r" placeholder="此次有標記數"><div class="fbar"></div><input class="finp" type="number" inputmode="numeric" id="cn'+i+'c" placeholder="此次捕獲總數"></div>'+
+        '<span class="op" style="margin:0 6px">⟹</span>'+
+        '<span style="font-size:13px;color:#1a3d1a;white-space:nowrap;flex-shrink:0">N ＝</span>'+
+        '<input type="number" inputmode="numeric" class="rinline" id="cn'+i+'" placeholder="族群估算量 N">'+
+        '<span style="font-size:12px;color:#555;flex-shrink:0;margin-left:2px"> 隻</span>'+
+      '</div>'+
+      '<div class="fhint">左上：第一次標記數 ／ 右上：此次有標記數 ／ 右下：此次捕獲總數 → 算出 N 填右側（若有小數請四捨五入至整數）</div>';
+    area.appendChild(d);
+  }
+  document.getElementById('c3-avg').style.display='block';
+}
+function confirmCap(){
+  var reqIds=['ca0','ca1','ca2','ca-avg'];
+  for(var i=0;i<3;i++){reqIds.push('cn'+i+'m','cn'+i+'r','cn'+i+'c','cn'+i);}
+  clearMarks(reqIds);var missing=[];
+  reqIds.forEach(function(id){if(isEmpty(id))missing.push(id);});
+  if(missing.length>0){missing.forEach(markEmpty);return;}
+  var v=parseInt(document.getElementById('ca-avg').value);
+  if(!v||v<=0){markEmpty('ca-avg');return;}
+  S.cap.ans=v;S.cap.ok=true;
+  S.cap.svNs=[];for(var i=0;i<3;i++){var el=document.getElementById('cn'+i);S.cap.svNs.push(el?el.value:'—');}
+  var ok=document.getElementById('c-ok');ok.style.display='block';ok.textContent='✅ 你的估計值：'+v+' 隻（已記錄）';
+  document.getElementById('c3').classList.add('done');document.getElementById('cap-fin').style.display='block';
+}
+
+function ensureGrid(){
+  var g=document.getElementById('d-grid');if(g.children.length>0)return;
+  S.dir.cnt=0;document.getElementById('d-cnt').textContent='0';
+  for(var i=0;i<TRUE_FISH;i++){
+    (function(){
+      var sp=document.createElement('span');sp.className='ftok';sp.textContent='🐟';
+      
+      // 加入隨機位移與旋轉，讓魚群呈現自然交錯排版
+      var randomX = (Math.random() * 20) - 10; 
+      var randomY = (Math.random() * 20) - 10; 
+      var randomRot = (Math.random() * 40) - 20; 
+      sp.style.transform = 'translate(' + randomX + 'px, ' + randomY + 'px) rotate(' + randomRot + 'deg)';
+      sp.style.margin = (Math.random() * 6) + 'px';
+
+      sp.addEventListener('click',function(){
+        if(sp.classList.contains('clicked'))return;
+        sp.classList.add('clicked');S.dir.cnt++;document.getElementById('d-cnt').textContent=S.dir.cnt;
+        if(S.dir.cnt>=TRUE_FISH)document.getElementById('d2').className='sbox active';
+      });
+      g.appendChild(sp);
+    })();
+  }
+}
+function confirmDir(){
+  var el=document.getElementById('dir-ans');el.classList.remove('need-fill-box');
+  var v=parseInt(el.value);
+  if(!v||v<=0){el.classList.add('need-fill-box');el.addEventListener('input',function(){el.classList.remove('need-fill-box');},{once:true});return;}
+  S.dir.ans=v;S.dir.ok=true;
+  var ok=document.getElementById('d-ok');ok.style.display='block';ok.textContent='✅ 你的記錄值：'+v+' 尾（已記錄）';
+  document.getElementById('d2').classList.add('done');document.getElementById('dir-fin').style.display='block';
+}
+
+function buildSum(){
+  var trueT=S.samp.tr===6?TRUE_TREE_6:TRUE_TREE_12;
+  var sb=document.getElementById('sum-s');
+  if(S.samp.ok&&S.samp.picked.length>0){
+    var rr='';for(var i=0;i<S.samp.picked.length;i++)rr+='<div class="sr"><span class="k">樣區 '+(S.samp.picked[i]+1)+'</span><span>你填：'+(S.samp.svCounts[i]||'—')+' 株</span></div>';
+    sb.innerHTML='<h3>🌲 台灣紅檜｜樣區法</h3>'+rr+'<div class="sr"><span class="k">加總 ÷ 抽查樣區數</span><span>'+S.samp.svSum+' ÷ '+S.samp.pn+' ＝ '+S.samp.svAvg+'</span></div><div class="sr"><span class="k">你的估計總數</span><span class="sbig">'+S.samp.ans+' 株</span></div><div class="sr"><span class="k">🟡 林區實際株數</span><span class="strue">'+trueT+' 株</span></div>';
+  }else sb.innerHTML='<h3>🌲 台灣紅檜｜樣區法</h3><div style="color:rgba(255,255,255,.5);font-size:12px">尚未完成</div>';
+  var cb=document.getElementById('sum-c');
+  if(S.cap.ok&&S.cap.samps.length>0){
+    var cr='';for(var i=0;i<S.cap.samps.length;i++){var s=S.cap.samps[i];cr+='<div class="sr"><span class="k">第'+(i+1)+'次估計</span><span>'+S.cap.m+'/N＝'+s.R+'/'+s.C+' → N＝'+(S.cap.svNs[i]||'—')+'</span></div>';}
+    cb.innerHTML='<h3>🐆 石虎｜捉放法</h3><div class="sr"><span class="k">第一次標記數</span><span>'+S.cap.m+' 隻</span></div>'+cr+'<div class="sr"><span class="k">你的平均估計值</span><span class="sbig">'+S.cap.ans+' 隻</span></div><div class="sr"><span class="k">🟡 族群實際數量</span><span class="strue">'+TRUE_CAT+' 隻</span></div>';
+  }else cb.innerHTML='<h3>🐆 石虎｜捉放法</h3><div style="color:rgba(255,255,255,.5);font-size:12px">尚未完成</div>';
+  var db=document.getElementById('sum-d');
+  if(S.dir.ok)db.innerHTML='<h3>🐟 櫻花鉤吻鮭｜直接計數法</h3><div class="sr"><span class="k">你記錄到的數量</span><span class="sbig">'+S.dir.ans+' 尾</span></div><div class="sr"><span class="k">🟡 實際數量</span><span class="strue">'+TRUE_FISH+' 尾</span></div>';
+  else db.innerHTML='<h3>🐟 櫻花鉤吻鮭｜直接計數法</h3><div style="color:rgba(255,255,255,.5);font-size:12px">尚未完成</div>';
+}
+
+function restart(){
+  S={samp:{tr:12,pn:3,picked:[],data:[],ans:null,ok:false,svCounts:[],svSum:'',svAvg:''},cap:{m:8,samps:[],ans:null,ok:false,svNs:[]},dir:{cnt:0,ans:null,ok:false}};
+  document.getElementById('s1').className='sbox active';document.getElementById('s2').className='sbox';document.getElementById('s3').className='sbox locked';
+  document.getElementById('s-grid').innerHTML='';document.getElementById('s-input-rows').innerHTML='';
+  document.getElementById('s-ok').style.display='none';document.getElementById('samp-fin').style.display='none';
+  document.getElementById('c1').className='sbox active';document.getElementById('c2').className='sbox';document.getElementById('c3').className='sbox';
+  document.getElementById('cap-m').value=8;document.getElementById('c-samps').innerHTML='';
+  document.getElementById('cap-sb').disabled=false;document.getElementById('c-calc').innerHTML='';
+  document.getElementById('c3-avg').style.display='none';document.getElementById('c-ok').style.display='none';document.getElementById('cap-fin').style.display='none';
+  document.getElementById('d1').className='sbox active';document.getElementById('d2').className='sbox';
+  document.getElementById('d-grid').innerHTML='';document.getElementById('d-cnt').textContent='0';
+  document.getElementById('dir-ans').value='';document.getElementById('d-ok').style.display='none';document.getElementById('dir-fin').style.display='none';
+  ensureGrid();goTo('cover');
+}
+ensureGrid();
+</script>
+</body></html>
