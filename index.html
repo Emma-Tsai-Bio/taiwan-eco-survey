@@ -328,18 +328,18 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
     <h2 style="font-size:15px;font-weight:700;color:#1a3d1a">🐆 捉放法｜石虎</h2>
   </div>
   <div class="gbody">
-    <div class="fmla"><strong>調查地點：</strong>苗栗三義淺山地帶<br><strong>物種特性：</strong>生性隱密、移動範圍大，極難直接目擊。<br><strong>原理：</strong>第一次捕捉並標記後放回，隔一段時間再捕捉，根據標記比例推估族群總數。<br><strong>比例式：</strong>第一次標記數 / 族群估算量 N ＝ 此次有標記數 / 此次捕獲總數</div>
+    <div class="fmla"><strong>調查地點：</strong>苗栗三義淺山地帶<br><strong>物種特性：</strong>生性隱密、移動範圍大，極難直接目擊。<br><strong>原理：</strong>首次捕捉並標記後放回，隔一段時間重新捕捉取樣，根據標記比例推估族群總數。<br><strong>比例式：</strong>首批標記總數 / 族群估算量 N ＝ 重捕標記數 / 該次重捕數</div>
     <div class="sbox active" id="c1">
-      <div class="stitle"><span class="snum">1</span>第一次捕捉並標記</div>
+      <div class="stitle"><span class="snum">1</span>首次捕捉與標記（標記階段）</div>
       <p class="info" style="margin-bottom:9px">在石虎出沒地點設置誘捕籠，捕捉後由獸醫檢查並套上無線電項圈，再放回野外。</p>
-      <div class="inrow"><label>第一次捕捉並標記的石虎數量：</label><input type="number" class="sinp" id="cap-m" value="8" min="1" max="30" inputmode="numeric"><span style="font-size:12px;color:#555">隻</span></div>
+      <div class="inrow"><label>首批標記的石虎數量：</label><input type="number" class="sinp" id="cap-m" value="10" min="1" max="30" inputmode="numeric"><span style="font-size:12px;color:#555">隻</span></div>
       <button class="cbtn" style="margin-top:12px" onclick="capStep1()">標記完成，放回野外 →</button>
     </div>
     <div class="sbox" id="c2">
-      <div class="stitle"><span class="snum">2</span>第二次捕捉（共三次取樣）</div>
+      <div class="stitle"><span class="snum">2</span>重新捕捉取樣（需重複進行三次）</div>
       <p class="info" style="margin-bottom:7px">等待數週讓石虎均勻混入族群後，再次佈放陷阱，記錄每次的捕獲數與其中有項圈的數量。</p>
       <div id="c-samps"></div>
-      <button class="cbtn" id="cap-sb" style="margin-top:10px" onclick="doCapSample()">🎲 進行第二次捕捉</button>
+      <button class="cbtn" id="cap-sb" style="margin-top:10px" onclick="doCapSample()">🎲 進行重捕取樣</button>
     </div>
     <div class="sbox" id="c3">
       <div class="stitle"><span class="snum">3</span>代入比例式，算出估計數</div>
@@ -355,11 +355,11 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
           <div class="flbl">④ 計算三次平均估計值</div>
           <div class="fline">
             <span class="op">（</span>
-            <input class="bl xs" id="ca0" type="number" inputmode="numeric" placeholder="第1次 N">
+            <input class="bl xs" id="ca0" type="number" inputmode="numeric" placeholder="取樣 1 N">
             <span class="op">＋</span>
-            <input class="bl xs" id="ca1" type="number" inputmode="numeric" placeholder="第2次 N">
+            <input class="bl xs" id="ca1" type="number" inputmode="numeric" placeholder="取樣 2 N">
             <span class="op">＋</span>
-            <input class="bl xs" id="ca2" type="number" inputmode="numeric" placeholder="第3次 N">
+            <input class="bl xs" id="ca2" type="number" inputmode="numeric" placeholder="取樣 3 N">
             <span class="op">）÷ 3 ＝</span>
             <input class="bl s" id="ca-avg" type="number" inputmode="numeric" placeholder="平均估計數">
             <span class="unit">隻</span>
@@ -431,7 +431,7 @@ function initGameData() {
   
   S = {
     samp: {tr:12, pn:3, picked:[], data:[], ans:null, ok:false, svCounts:[], svSum:'', svAvg:''},
-    cap:  {m:8, samps:[], ans:null, ok:false, svNs:[]},
+    cap:  {m:10, samps:[], ans:null, ok:false, svNs:[]}, // 將內部預設 m 改為 10
     dir:  {cnt:0, ans:null, ok:false}
   };
 }
@@ -459,27 +459,46 @@ function syncCards(){
 }
 
 function startSampling(){
-  var tr=parseInt(document.getElementById('samp-tr').value);
-  var pn=parseInt(document.getElementById('samp-pn').value)||3;
-  pn=Math.max(1,Math.min(pn,tr));
-  document.getElementById('samp-pn').value=pn;
-  S.samp.tr=tr;S.samp.pn=pn;
-  var data=tr===6?RD6:RD12;
-  var idxs=[];
-  while(idxs.length<pn){var r=Math.floor(Math.random()*tr);if(idxs.indexOf(r)<0)idxs.push(r);}
+  // 取得數值，加入防護機制，確保取到正確的下拉數字
+  var trSel = document.getElementById('samp-tr');
+  var tr = parseInt(trSel.value);
+  if (tr !== 6 && tr !== 12) tr = 12; // 防呆
+  
+  var pnInp = document.getElementById('samp-pn');
+  var pn = parseInt(pnInp.value) || 3;
+  pn = Math.max(1, Math.min(pn, tr));
+  pnInp.value = pn; // 寫回修正後的值
+  
+  S.samp.tr = tr;
+  S.samp.pn = pn;
+  
+  // 根據選擇的區數正確切換資料陣列
+  var data = (tr === 6) ? RD6 : RD12;
+  
+  var idxs = [];
+  while(idxs.length < pn){
+    var r = Math.floor(Math.random() * tr);
+    if(idxs.indexOf(r) < 0) idxs.push(r);
+  }
   idxs.sort(function(a,b){return a-b;});
-  S.samp.picked=idxs;S.samp.data=idxs.map(function(i){return data[i];});
-  var cols=tr===6?3:4;
-  var grid=document.getElementById('s-grid');
-  grid.style.gridTemplateColumns='repeat('+cols+',1fr)';grid.innerHTML='';
-  for(var i=0;i<tr;i++){
-    var cell=document.createElement('div');
-    var isSampled=idxs.indexOf(i)>=0;
-    cell.className='rcell '+(isSampled?'sampled':'unsampled');
-    var trees='';if(isSampled){for(var t=0;t<data[i];t++)trees+='🌲';}
-    cell.innerHTML='<span class="rn">樣區 '+(i+1)+'</span><div class="rtrees">'+(isSampled?trees:'—')+'</div>';
+  S.samp.picked = idxs;
+  S.samp.data = idxs.map(function(i){return data[i];});
+  
+  // 建立對應數量的網格（6區或12區）
+  var cols = (tr === 6) ? 3 : 4;
+  var grid = document.getElementById('s-grid');
+  grid.style.gridTemplateColumns = 'repeat(' + cols + ',1fr)';
+  grid.innerHTML = '';
+  for(var i=0; i<tr; i++){
+    var cell = document.createElement('div');
+    var isSampled = idxs.indexOf(i) >= 0;
+    cell.className = 'rcell ' + (isSampled ? 'sampled' : 'unsampled');
+    var trees = '';
+    if(isSampled){for(var t=0; t<data[i]; t++) trees += '🌲';}
+    cell.innerHTML = '<span class="rn">樣區 '+(i+1)+'</span><div class="rtrees">'+(isSampled?trees:'—')+'</div>';
     grid.appendChild(cell);
   }
+  
   var inputRows=document.getElementById('s-input-rows');
   inputRows.innerHTML='<div style="font-size:11px;font-weight:700;color:#2a6b30;margin-bottom:7px">填入各抽樣區的株數：</div>';
   for(var j=0;j<idxs.length;j++){
@@ -508,7 +527,12 @@ function confirmSamp(){
 }
 
 function capStep1(){
-  var m=parseInt(document.getElementById('cap-m').value)||8;
+  // 加入防呆，低於 1 自動變為 1
+  var el = document.getElementById('cap-m');
+  var m = parseInt(el.value);
+  if(isNaN(m) || m < 1) m = 1;
+  el.value = m; // 更新畫面顯示的數字
+
   S.cap.m=m;S.cap.samps=[];S.cap.svNs=[];
   document.getElementById('c-samps').innerHTML='';document.getElementById('cap-sb').disabled=false;
   document.getElementById('c-calc').innerHTML='';document.getElementById('c3-avg').style.display='none';
@@ -519,12 +543,13 @@ function doCapSample(){
   if(S.cap.samps.length>=3)return;
   var C=8+Math.floor(Math.random()*9);
   var raw=Math.round((S.cap.m/TRUE_CAT)*C*(0.7+Math.random()*0.6));
-  var R=Math.max(1,Math.min(raw,Math.min(C,S.cap.m)));
+  var R=Math.max(1,Math.min(raw,Math.min(C,S.cap.m))); // 因為前方防呆確保 m>=1，所以不需擔心 R 異常
   S.cap.samps.push({C:C,R:R});
   var n=S.cap.samps.length;
   var div=document.createElement('div');
-  div.style.cssText='background:#eaf4e8;border-radius:8px;padding:9px 12px;font-size:12px;color:#1a3d1a;margin-bottom:6px';
-  div.innerHTML='<b>第'+n+'次：</b>共捕獲 <b>'+C+'</b> 隻，其中有項圈（標記）<b>'+R+'</b> 隻';
+  div.style.cssText='background:#eaf4e8;border-radius:8px;padding:9px 12px;font-size:13px;color:#1a3d1a;margin-bottom:6px';
+  // 文字調整：取樣 N
+  div.innerHTML='<b>取樣 '+n+'：</b>該次重捕 <b>'+C+'</b> 隻，其中有項圈（標記）<b>'+R+'</b> 隻';
   document.getElementById('c-samps').appendChild(div);
   if(S.cap.samps.length>=3){
     document.getElementById('cap-sb').disabled=true;document.getElementById('c2').className='sbox done';document.getElementById('c3').className='sbox active';buildCapCalc();
@@ -536,10 +561,11 @@ function buildCapCalc(){
   for(var i=0;i<S.cap.samps.length;i++){
     var s=S.cap.samps[i];var d=document.createElement('div');d.className='fsec';d.style.marginBottom='8px';
     
-    d.innerHTML='<div class="flbl">'+nums[i]+' 第'+(i+1)+'次取樣（此次捕獲 '+s.C+' 隻，有標記 '+s.R+' 隻）</div>'+
+    // 文字調整：首批標記、該次重捕
+    d.innerHTML='<div class="flbl">'+nums[i]+' 取樣 '+(i+1)+'（該次重捕 '+s.C+' 隻，有標記 '+s.R+' 隻）</div>'+
       '<div class="prop-line">'+
         '<div class="eq-wrap">'+
-          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'m" placeholder="第一次標記數"><div class="fbar"></div><input class="n-display" readonly tabindex="-1" placeholder="估算量 N"></div>'+
+          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'m" placeholder="首批標記總數"><div class="fbar"></div><input class="n-display" readonly tabindex="-1" placeholder="估算量 N"></div>'+
           '<div class="op-wrap">'+
             '<span class="op">＝</span>'+
             '<svg class="cross-arrow" id="ca-svg'+i+'" viewBox="0 0 80 60">'+
@@ -548,14 +574,15 @@ function buildCapCalc(){
               '<path d="M 8 50 L 68 14" stroke="#e74c3c" stroke-width="2.5" stroke-dasharray="5,4" fill="none" marker-end="url(#arrhead'+i+')"/>'+
             '</svg>'+
           '</div>'+
-          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'r" placeholder="此次有標記數"><div class="fbar"></div><input class="finp" type="number" inputmode="numeric" id="cn'+i+'c" placeholder="此次捕獲總數"></div>'+
+          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'r" placeholder="重捕標記數"><div class="fbar"></div><input class="finp" type="number" inputmode="numeric" id="cn'+i+'c" placeholder="該次重捕數"></div>'+
         '</div>'+
         '<span class="op" style="margin:0 6px">⟹</span>'+
         '<span style="font-size:13px;color:#1a3d1a;white-space:nowrap;flex-shrink:0">N ＝</span>'+
         '<input type="number" inputmode="numeric" class="rinline" id="cn'+i+'" placeholder="族群估算量 N">'+
         '<span style="font-size:12px;color:#555;flex-shrink:0;margin-left:2px"> 隻</span>'+
       '</div>'+
-      '<div class="fhint">左上：第一次標記數 ／ 右上：此次有標記數 ／ 右下：此次捕獲總數 → 算出 N 填右側（若有小數請四捨五入至整數）</div>';
+      // 新增算法提示（醒目紅色文字）
+      '<div class="fhint" style="color:#c62828; font-weight:500; margin-top:8px;">💡 算法提示：填滿三個格子後會出現「紅色虛線箭頭」！請依箭頭進行交叉相乘：<br><b>首批標記總數 × 該次重捕數 ÷ 重捕標記數 ＝ N</b>（結果請四捨五入至整數）</div>';
     area.appendChild(d);
   }
   document.getElementById('c3-avg').style.display='block';
@@ -635,8 +662,8 @@ function buildSum(){
   }else sb.innerHTML='<h3>🌲 台灣紅檜｜樣區法</h3><div style="color:rgba(255,255,255,.5);font-size:12px">尚未完成</div>';
   var cb=document.getElementById('sum-c');
   if(S.cap.ok&&S.cap.samps.length>0){
-    var cr='';for(var i=0;i<S.cap.samps.length;i++){var s=S.cap.samps[i];cr+='<div class="sr"><span class="k">第'+(i+1)+'次估計</span><span>'+S.cap.m+'/N＝'+s.R+'/'+s.C+' → N＝'+(S.cap.svNs[i]||'—')+'</span></div>';}
-    cb.innerHTML='<h3>🐆 石虎｜捉放法</h3><div class="sr"><span class="k">第一次標記數</span><span>'+S.cap.m+' 隻</span></div>'+cr+'<div class="sr"><span class="k">你的平均估計值</span><span class="sbig">'+S.cap.ans+' 隻</span></div><div class="sr"><span class="k">🟡 族群實際數量</span><span class="strue">'+TRUE_CAT+' 隻</span></div>';
+    var cr='';for(var i=0;i<S.cap.samps.length;i++){var s=S.cap.samps[i];cr+='<div class="sr"><span class="k">取樣 '+(i+1)+' 估計</span><span>'+S.cap.m+'/N＝'+s.R+'/'+s.C+' → N＝'+(S.cap.svNs[i]||'—')+'</span></div>';}
+    cb.innerHTML='<h3>🐆 石虎｜捉放法</h3><div class="sr"><span class="k">首批標記總數</span><span>'+S.cap.m+' 隻</span></div>'+cr+'<div class="sr"><span class="k">你的平均估計值</span><span class="sbig">'+S.cap.ans+' 隻</span></div><div class="sr"><span class="k">🟡 族群實際數量</span><span class="strue">'+TRUE_CAT+' 隻</span></div>';
   }else cb.innerHTML='<h3>🐆 石虎｜捉放法</h3><div style="color:rgba(255,255,255,.5);font-size:12px">尚未完成</div>';
   var db=document.getElementById('sum-d');
   if(S.dir.ok)db.innerHTML='<h3>🐟 櫻花鉤吻鮭｜直接計數法</h3><div class="sr"><span class="k">你記錄到的數量</span><span class="sbig">'+S.dir.ans+' 尾</span></div><div class="sr"><span class="k">🟡 實際數量</span><span class="strue">'+TRUE_FISH+' 尾</span></div>';
@@ -646,6 +673,9 @@ function buildSum(){
 function restart(){
   initGameData(); 
   
+  // 重置樣區法表單為預設
+  document.getElementById('samp-tr').value = '12';
+  document.getElementById('samp-pn').value = '3';
   document.getElementById('s1').className='sbox active';
   document.getElementById('s2').className='sbox';
   document.getElementById('s3').className='sbox locked';
@@ -657,7 +687,7 @@ function restart(){
   document.getElementById('c1').className='sbox active';
   document.getElementById('c2').className='sbox';
   document.getElementById('c3').className='sbox';
-  document.getElementById('cap-m').value=8;
+  document.getElementById('cap-m').value=10; // 重置預設回 10 隻
   document.getElementById('c-samps').innerHTML='';
   document.getElementById('cap-sb').disabled=false;
   document.getElementById('c-calc').innerHTML='';
