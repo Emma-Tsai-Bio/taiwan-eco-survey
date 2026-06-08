@@ -574,10 +574,10 @@ function buildCapCalc(){
                 '<marker id="arr-red'+i+'" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M 0 0 L 6 3 L 0 6 Z" fill="#e74c3c" /></marker>'+
                 '<marker id="arr-blue'+i+'" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M 0 0 L 6 3 L 0 6 Z" fill="#2980b9" /></marker>'+
               '</defs>'+
-              // 提示一：找倍數 (藍色水平線)
+              // 提示一：找倍數 (藍色水平線，由右往左 M 68 -> L 12)
               '<g id="g-h1-'+i+'" style="opacity:0; transition:opacity 0.3s;">'+
-                '<path d="M 12 15 L 68 15" stroke="#2980b9" stroke-width="2.5" stroke-dasharray="4,4" fill="none" marker-end="url(#arr-blue'+i+')"/>'+
-                '<path d="M 12 45 L 68 45" stroke="#2980b9" stroke-width="2.5" stroke-dasharray="4,4" fill="none" marker-end="url(#arr-blue'+i+')"/>'+
+                '<path d="M 68 15 L 12 15" stroke="#2980b9" stroke-width="2.5" stroke-dasharray="4,4" fill="none" marker-end="url(#arr-blue'+i+')"/>'+
+                '<path d="M 68 45 L 12 45" stroke="#2980b9" stroke-width="2.5" stroke-dasharray="4,4" fill="none" marker-end="url(#arr-blue'+i+')"/>'+
               '</g>'+
               // 提示二：交叉相乘 (紅色交叉線)
               '<g id="g-h2-'+i+'" style="opacity:0; transition:opacity 0.3s;">'+
@@ -593,7 +593,6 @@ function buildCapCalc(){
         '<input type="number" inputmode="numeric" class="rinline" id="cn'+i+'" placeholder="族群估算量 N">'+
         '<span style="font-size:12px;color:#555;flex-shrink:0;margin-left:2px"> 隻</span>'+
       '</div>'+
-      // ======= 全新的互動提示區塊 =======
       '<div style="margin-top:10px;">'+
          '<button class="h-toggle" id="btn-show-hint-'+i+'">💡 需要計算提示嗎？</button>'+
          '<div class="h-content" id="hint-content-'+i+'">'+
@@ -619,19 +618,18 @@ function buildCapCalc(){
       var gh2 = document.getElementById('g-h2-'+idx);
       var th = document.getElementById('text-hint-'+idx);
 
-      // 點擊「需要計算提示嗎？」後展開面板
       btnShow.addEventListener('click', function(){
         hContent.style.display = 'block';
-        btnShow.style.display = 'none'; // 隱藏按鈕本身讓畫面保持乾淨
+        btnShow.style.display = 'none'; 
       });
 
-      // 提示一：找倍數捷徑
+      // 提示一：找倍數捷徑 (明確說明由右至左)
       btn1.addEventListener('click', function(){
         btn1.classList.add('active-b');
         btn2.classList.remove('active-r');
         gh1.style.opacity = '1';
-        gh2.style.opacity = '0'; // 隱藏紅線
-        th.innerHTML = '<span style="color:#2980b9; font-size:13px; font-weight:700;">💡 找倍數捷徑：</span><br>觀察上方兩數字是否為「整數倍」？<br>若是，下方數字直接乘上同樣的倍數，即可算出 N！';
+        gh2.style.opacity = '0'; 
+        th.innerHTML = '<span style="color:#2980b9; font-size:13px; font-weight:700;">💡 找倍數捷徑：</span><br>觀察上方兩數字是否為「整數倍」？<br>若是，下方數字依箭頭方向（由右至左）進行相同計算，即可算出 N！';
       });
 
       // 提示二：交叉相乘
@@ -639,7 +637,7 @@ function buildCapCalc(){
         btn2.classList.add('active-r');
         btn1.classList.remove('active-b');
         gh2.style.opacity = '1';
-        gh1.style.opacity = '0'; // 隱藏藍線
+        gh1.style.opacity = '0'; 
         th.innerHTML = '<span style="color:#e74c3c; font-size:13px; font-weight:700;">💡 萬用交叉相乘：</span><br>若無法整除，請依紅色箭頭交叉相乘：<br><b>首批標記總數 × 該次重捕數 ÷ 重捕標記數 ＝ N</b><br><span style="font-size:11px; color:#888;">（計算結果請四捨五入至整數）</span>';
       });
     })(j);
