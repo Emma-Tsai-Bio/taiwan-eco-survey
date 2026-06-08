@@ -3,6 +3,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>台灣生態調查員</title>
 <style>
+/* 加入這行，讓所有填空框預設提示字變小 */
+.bl::placeholder { font-size: 11px; font-weight: 400; color: #999; }
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;-webkit-text-size-adjust:100%}
@@ -102,16 +104,17 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
 .prop-line{display:flex;align-items:center;flex-wrap:nowrap;gap:5px;font-size:13px;color:#1a3d1a;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
 .prop-line .op{font-weight:700;color:#3a6b35;font-size:14px;flex-shrink:0}
 .frac{display:inline-flex;flex-direction:column;align-items:center;flex-shrink:0;margin:0 2px}
-.frac .finp{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:87px;min-height:34px;-webkit-appearance:none;transition:all .15s}
+.frac .finp{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:100px;min-height:34px;-webkit-appearance:none;transition:all .15s}
+.frac .finp::placeholder{font-size:11px;font-weight:400;color:#999}
 .frac .finp:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
 .frac .finp::-webkit-inner-spin-button{opacity:0}
-.frac .n-display{border:1.5px solid #e67e22;background:#fff3e0;border-radius:6px;text-align:center;font-size:11px;font-weight:400;font-family:inherit;color:#8a4507;padding:5px 4px;width:87px;min-height:34px;-webkit-appearance:none;cursor:default;pointer-events:none}
+.frac .n-display{border:1.5px solid #e67e22;background:#fff3e0;border-radius:6px;text-align:center;font-size:11px;font-weight:400;font-family:inherit;color:#8a4507;padding:5px 4px;width:100px;min-height:34px;-webkit-appearance:none;cursor:default;pointer-events:none}
 .frac .n-display::placeholder{color:#c68642}
 .frac .fbar{width:100%;height:2px;background:#1a3d1a;margin:3px 0}
-.rinline{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:108px;min-height:36px;flex-shrink:0;-webkit-appearance:none;transition:all .15s}
+.rinline{border:1.5px solid #3a6b35;background:#fff;border-radius:6px;text-align:center;font-size:15px;font-weight:700;font-family:inherit;color:#1a3d1a;padding:5px 4px;width:120px;min-height:36px;flex-shrink:0;-webkit-appearance:none;transition:all .15s}
+.rinline::placeholder{font-size:12px;font-weight:400;color:#999}
 .rinline:focus{outline:none;border-color:#1a3d1a;box-shadow:0 0 0 2px rgba(58,107,53,.15)}
 .rinline::-webkit-inner-spin-button{opacity:0}
-
 /* fgrid */
 .fgrid{display:flex;flex-wrap:wrap;gap:4px;max-width:480px;justify-content:center;padding:10px 0}
 .ftok{font-size:22px;cursor:pointer;border-radius:6px;padding:3px;user-select:none;touch-action:manipulation;min-width:32px;min-height:32px;display:inline-flex;align-items:center;justify-content:center;transition:opacity .2s}
@@ -131,6 +134,26 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
 .scene-card{background:#fff;border-radius:16px;border:1.5px solid #d4e8c8;padding:20px 24px;text-align:center;max-width:560px;width:100%}
 .thr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;max-width:560px;width:100%;margin-top:11px}
 .tc{background:#fff;border-radius:11px;border:1.5px solid #d4e8c8;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:flex-start}
+
+/* =========================================
+   交叉相乘虛線箭頭設定
+========================================= */
+.eq-wrap { position: relative; display: inline-flex; align-items: center; }
+.op-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; }
+.cross-arrow { 
+  position: absolute; 
+  top: 50%; left: 50%; 
+  transform: translate(-50%, -50%) scale(0.8); 
+  width: 76px; height: 56px; 
+  pointer-events: none; 
+  opacity: 0; 
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+  z-index: 10; 
+}
+.cross-arrow.show { 
+  opacity: 0.8; 
+  transform: translate(-50%, -50%) scale(1); 
+}
 
 /* =========================================
    電腦與平板版面放大設定 (寬度大於 768px)
@@ -167,11 +190,18 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
   .fline { font-size: 16px; }
   .fline .op, .prop-line .op { font-size: 18px; }
   .fline .unit { font-size: 15px; }
+  
   .bl, .frac .finp, .rinline { font-size: 18px; min-height: 44px; }
-  .frac .n-display { font-size: 14px; min-height: 44px; padding-top: 10px; }
-  .bl.xs { width: 110px; }
-  .bl.s { width: 130px; }
+  .bl::placeholder { font-size: 13px; }
+  .bl.xs { width: 115px; } 
+  .bl.s { width: 140px; } 
   .bl.m { width: 160px; }
+
+  .frac .finp { width: 120px; } 
+  .frac .finp::placeholder { font-size: 13px; } 
+  .frac .n-display { font-size: 14px; min-height: 44px; padding-top: 10px; width: 120px; }
+  .rinline { width: 135px; } 
+  .rinline::placeholder { font-size: 13px; }
 
   .rcell .rn { font-size: 13px; margin-bottom: 6px; }
   .rcell .rtrees { font-size: 18px; }
@@ -180,8 +210,7 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
   .ss h3 { font-size: 18px; }
   .sr { font-size: 15px; padding: 10px 0; }
   .sbig, .strue { font-size: 18px; }
-
-  /* 調整大螢幕的區塊間距與留白 */
+  
   .gbody { gap: 20px; }
   .sbox { padding: 24px 28px; }
   .ghdr { margin-bottom: 24px; }
@@ -387,11 +416,28 @@ select.ssel{padding:8px 8px;border:1.5px solid #d4e8c8;border-radius:7px;font-si
 </div>
 
 <script>
-var RD12=[14,9,12,17,8,11,15,10,13,9,11,16];
-var RD6=[23,19,27,21,18,24];
-// 修改：將魚的總數設為 28
-var TRUE_TREE_12=145,TRUE_TREE_6=132,TRUE_CAT=45,TRUE_FISH=28;
-var S={samp:{tr:12,pn:3,picked:[],data:[],ans:null,ok:false,svCounts:[],svSum:'',svAvg:''},cap:{m:8,samps:[],ans:null,ok:false,svNs:[]},dir:{cnt:0,ans:null,ok:false}};
+// 宣告全域變數
+var RD12, RD6, TRUE_TREE_12, TRUE_TREE_6, TRUE_CAT, TRUE_FISH, S;
+
+// 建立隨機初始化函數
+function initGameData() {
+  RD12 = []; TRUE_TREE_12 = 0;
+  for(var i = 0; i < 12; i++) { var v = Math.floor(Math.random()*12) + 6; RD12.push(v); TRUE_TREE_12 += v; }
+  RD6 = []; TRUE_TREE_6 = 0;
+  for(var j = 0; j < 6; j++) { var v = Math.floor(Math.random()*20) + 12; RD6.push(v); TRUE_TREE_6 += v; }
+  
+  TRUE_CAT = Math.floor(Math.random() * 41) + 35;
+  TRUE_FISH = Math.floor(Math.random() * 19) + 20;
+  
+  S = {
+    samp: {tr:12, pn:3, picked:[], data:[], ans:null, ok:false, svCounts:[], svSum:'', svAvg:''},
+    cap:  {m:8, samps:[], ans:null, ok:false, svNs:[]},
+    dir:  {cnt:0, ans:null, ok:false}
+  };
+}
+
+// 網頁載入時立刻執行一次
+initGameData();
 
 function isEmpty(id){var e=document.getElementById(id);return !e||e.value===''||e.value===null;}
 function markEmpty(id){var e=document.getElementById(id);if(e){e.classList.add('need-fill');e.addEventListener('input',function(){e.classList.remove('need-fill');},{once:true});}}
@@ -489,11 +535,21 @@ function buildCapCalc(){
   var nums=['①','②','③'];
   for(var i=0;i<S.cap.samps.length;i++){
     var s=S.cap.samps[i];var d=document.createElement('div');d.className='fsec';d.style.marginBottom='8px';
+    
     d.innerHTML='<div class="flbl">'+nums[i]+' 第'+(i+1)+'次取樣（此次捕獲 '+s.C+' 隻，有標記 '+s.R+' 隻）</div>'+
       '<div class="prop-line">'+
-        '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'m" placeholder="第一次標記數"><div class="fbar"></div><input class="n-display" readonly tabindex="-1" placeholder="估算量 N"></div>'+
-        '<span class="op">＝</span>'+
-        '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'r" placeholder="此次有標記數"><div class="fbar"></div><input class="finp" type="number" inputmode="numeric" id="cn'+i+'c" placeholder="此次捕獲總數"></div>'+
+        '<div class="eq-wrap">'+
+          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'m" placeholder="第一次標記數"><div class="fbar"></div><input class="n-display" readonly tabindex="-1" placeholder="估算量 N"></div>'+
+          '<div class="op-wrap">'+
+            '<span class="op">＝</span>'+
+            '<svg class="cross-arrow" id="ca-svg'+i+'" viewBox="0 0 80 60">'+
+              '<defs><marker id="arrhead'+i+'" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M 0 0 L 6 3 L 0 6 Z" fill="#e74c3c" /></marker></defs>'+
+              '<path d="M 72 50 L 12 14" stroke="#e74c3c" stroke-width="2.5" stroke-dasharray="5,4" fill="none" marker-end="url(#arrhead'+i+')"/>'+
+              '<path d="M 8 50 L 68 14" stroke="#e74c3c" stroke-width="2.5" stroke-dasharray="5,4" fill="none" marker-end="url(#arrhead'+i+')"/>'+
+            '</svg>'+
+          '</div>'+
+          '<div class="frac"><input class="finp" type="number" inputmode="numeric" id="cn'+i+'r" placeholder="此次有標記數"><div class="fbar"></div><input class="finp" type="number" inputmode="numeric" id="cn'+i+'c" placeholder="此次捕獲總數"></div>'+
+        '</div>'+
         '<span class="op" style="margin:0 6px">⟹</span>'+
         '<span style="font-size:13px;color:#1a3d1a;white-space:nowrap;flex-shrink:0">N ＝</span>'+
         '<input type="number" inputmode="numeric" class="rinline" id="cn'+i+'" placeholder="族群估算量 N">'+
@@ -503,6 +559,27 @@ function buildCapCalc(){
     area.appendChild(d);
   }
   document.getElementById('c3-avg').style.display='block';
+
+  for(var j=0;j<S.cap.samps.length;j++){
+    (function(idx){
+      var inM = document.getElementById('cn'+idx+'m');
+      var inR = document.getElementById('cn'+idx+'r');
+      var inC = document.getElementById('cn'+idx+'c');
+      var svg = document.getElementById('ca-svg'+idx);
+
+      function checkFill(){
+        if(inM.value !== '' && inR.value !== '' && inC.value !== ''){
+          svg.classList.add('show');
+        } else {
+          svg.classList.remove('show');
+        }
+      }
+      
+      inM.addEventListener('input', checkFill);
+      inR.addEventListener('input', checkFill);
+      inC.addEventListener('input', checkFill);
+    })(j);
+  }
 }
 function confirmCap(){
   var reqIds=['ca0','ca1','ca2','ca-avg'];
@@ -525,7 +602,6 @@ function ensureGrid(){
     (function(){
       var sp=document.createElement('span');sp.className='ftok';sp.textContent='🐟';
       
-      // 加入隨機位移與旋轉，讓魚群呈現自然交錯排版
       var randomX = (Math.random() * 20) - 10; 
       var randomY = (Math.random() * 20) - 10; 
       var randomRot = (Math.random() * 40) - 20; 
@@ -568,18 +644,37 @@ function buildSum(){
 }
 
 function restart(){
-  S={samp:{tr:12,pn:3,picked:[],data:[],ans:null,ok:false,svCounts:[],svSum:'',svAvg:''},cap:{m:8,samps:[],ans:null,ok:false,svNs:[]},dir:{cnt:0,ans:null,ok:false}};
-  document.getElementById('s1').className='sbox active';document.getElementById('s2').className='sbox';document.getElementById('s3').className='sbox locked';
-  document.getElementById('s-grid').innerHTML='';document.getElementById('s-input-rows').innerHTML='';
-  document.getElementById('s-ok').style.display='none';document.getElementById('samp-fin').style.display='none';
-  document.getElementById('c1').className='sbox active';document.getElementById('c2').className='sbox';document.getElementById('c3').className='sbox';
-  document.getElementById('cap-m').value=8;document.getElementById('c-samps').innerHTML='';
-  document.getElementById('cap-sb').disabled=false;document.getElementById('c-calc').innerHTML='';
-  document.getElementById('c3-avg').style.display='none';document.getElementById('c-ok').style.display='none';document.getElementById('cap-fin').style.display='none';
-  document.getElementById('d1').className='sbox active';document.getElementById('d2').className='sbox';
-  document.getElementById('d-grid').innerHTML='';document.getElementById('d-cnt').textContent='0';
-  document.getElementById('dir-ans').value='';document.getElementById('d-ok').style.display='none';document.getElementById('dir-fin').style.display='none';
-  ensureGrid();goTo('cover');
+  initGameData(); 
+  
+  document.getElementById('s1').className='sbox active';
+  document.getElementById('s2').className='sbox';
+  document.getElementById('s3').className='sbox locked';
+  document.getElementById('s-grid').innerHTML='';
+  document.getElementById('s-input-rows').innerHTML='';
+  document.getElementById('s-ok').style.display='none';
+  document.getElementById('samp-fin').style.display='none';
+  
+  document.getElementById('c1').className='sbox active';
+  document.getElementById('c2').className='sbox';
+  document.getElementById('c3').className='sbox';
+  document.getElementById('cap-m').value=8;
+  document.getElementById('c-samps').innerHTML='';
+  document.getElementById('cap-sb').disabled=false;
+  document.getElementById('c-calc').innerHTML='';
+  document.getElementById('c3-avg').style.display='none';
+  document.getElementById('c-ok').style.display='none';
+  document.getElementById('cap-fin').style.display='none';
+  
+  document.getElementById('d1').className='sbox active';
+  document.getElementById('d2').className='sbox';
+  document.getElementById('d-grid').innerHTML='';
+  document.getElementById('d-cnt').textContent='0';
+  document.getElementById('dir-ans').value='';
+  document.getElementById('d-ok').style.display='none';
+  document.getElementById('dir-fin').style.display='none';
+  
+  ensureGrid();
+  goTo('cover');
 }
 ensureGrid();
 </script>
