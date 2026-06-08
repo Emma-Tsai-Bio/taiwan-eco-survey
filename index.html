@@ -623,22 +623,22 @@ function buildCapCalc(){
         btnShow.style.display = 'none'; 
       });
 
-      // 提示一：找倍數捷徑 (明確說明由右至左)
+      // 提示一：白話文版的找倍數捷徑
       btn1.addEventListener('click', function(){
         btn1.classList.add('active-b');
         btn2.classList.remove('active-r');
         gh1.style.opacity = '1';
         gh2.style.opacity = '0'; 
-        th.innerHTML = '<span style="color:#2980b9; font-size:13px; font-weight:700;">💡 找倍數捷徑：</span><br>觀察上方兩數字是否為「整數倍」？<br>若是，下方數字依箭頭方向（由右至左）進行相同計算，即可算出 N！';
+        th.innerHTML = '<span style="color:#2980b9; font-size:13px; font-weight:700;">💡 找倍數捷徑：</span><br>算算看，上面的兩個數字中，<b>左邊剛好是右邊的幾倍呢？</b><br>找到倍數後，下方的數字也依箭頭方向（由右至左）乘上相同的倍數，即可輕鬆算出 N！';
       });
 
-      // 提示二：交叉相乘
+      // 提示二：加入移項步驟的交叉相乘
       btn2.addEventListener('click', function(){
         btn2.classList.add('active-r');
         btn1.classList.remove('active-b');
         gh2.style.opacity = '1';
         gh1.style.opacity = '0'; 
-        th.innerHTML = '<span style="color:#e74c3c; font-size:13px; font-weight:700;">💡 萬用交叉相乘：</span><br>若無法整除，請依紅色箭頭交叉相乘：<br><b>首批標記總數 × 該次重捕數 ÷ 重捕標記數 ＝ N</b><br><span style="font-size:11px; color:#888;">（計算結果請四捨五入至整數）</span>';
+        th.innerHTML = '<span style="color:#e74c3c; font-size:13px; font-weight:700;">💡 萬用交叉相乘：</span><br>若無法剛好整除，請依紅色箭頭交叉相乘：<br><b>首批標記總數 × 該次重捕數 ＝ N × 重捕標記數</b><br>接著再移項算出：<br><b>首批標記總數 × 該次重捕數 ÷ 重捕標記數 ＝ N</b><br><span style="font-size:11px; color:#888;">（計算結果請四捨五入至整數）</span>';
       });
     })(j);
   }
